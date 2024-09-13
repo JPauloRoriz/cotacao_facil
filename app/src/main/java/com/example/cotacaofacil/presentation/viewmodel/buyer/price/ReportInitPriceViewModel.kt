@@ -11,7 +11,7 @@ import com.example.cotacaofacil.domain.exception.NotCreatePriceException
 import com.example.cotacaofacil.domain.mapper.toProductEditPrice
 import com.example.cotacaofacil.domain.model.PriceModel
 import com.example.cotacaofacil.domain.model.ProductPriceEditPriceModel
-import com.example.cotacaofacil.domain.model.ProductPriceModel
+import com.example.cotacaofacil.domain.model.TypeHistory
 import com.example.cotacaofacil.domain.usecase.historic.contract.AddHistoricUseCase
 import com.example.cotacaofacil.domain.usecase.price.contract.CreatePriceUseCase
 import com.example.cotacaofacil.presentation.ui.extension.*
@@ -39,7 +39,7 @@ class ReportInitPriceViewModel(
                 textValueQuantityProducts = priceModel.productsPrice.size.toString(),
                 textDateDeliveryPrice = priceModel.deliveryDate.toFormattedDateTime(),
                 textDateInitPrice = priceModel.dateStartPrice.toFormattedDateTime(),
-                textDateFinishPrice = priceModel.dateFinishPrice?.dateEmpty(context, priceModel.closeAutomatic)
+                textDateFinishPrice = priceModel.dateFinishPrice.dateEmpty(context, priceModel.closeAutomatic)
                     ?: context.getString(R.string.default_date),
                 colorPriorityPrice = priceModel.priority.toColorPriority(context) ?: ContextCompat.getDrawable(context, R.drawable.ic_ball_yellow),
                 textPriorityPrice = priceModel.priority.toTextPriority(context),
@@ -57,13 +57,16 @@ class ReportInitPriceViewModel(
     }
 
     fun tapOnInitPrice() {
+        stateLiveData.postValue(stateLiveData.value?.copy(isLoading = true))
         viewModelScope.launch(Dispatchers.IO) {
             createPriceUseCase.invoke(priceModel)
                 .onSuccess { codePrice ->
-                    historicUseCase.addHistoricAddPrice(priceModel.dateStartPrice, priceModel.cnpjBuyerCreator, codePrice)
+                    stateLiveData.postValue(stateLiveData.value?.copy(isLoading = false))
+                    historicUseCase.addHistoric(priceModel.dateStartPrice, priceModel.cnpjBuyerCreator, codePrice, typeHistory = TypeHistory.CREATE_PRICE)
                     eventLiveData.postValue(EventReportInitPriceLiveData.SuccessAddPrice(codePrice))
                 }
                 .onFailure {
+                    stateLiveData.postValue(stateLiveData.value?.copy(isLoading = false))
                     when (it) {
                         is NotCreatePriceException -> {}
                         else -> {}

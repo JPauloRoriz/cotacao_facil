@@ -18,10 +18,9 @@ class ValidationStatusPriceUseCaseImpl(
                 .onSuccess { dateCurrent ->
                     val pricesStatusUpdate: MutableList<PriceModel> = mutableListOf()
                     prices.forEach { priceModel ->
-                        if (priceModel.closeAutomatic && priceModel.status == StatusPrice.OPEN && (priceModel.dateFinishPrice ?: 0) < dateCurrent
+                        if (priceModel.closeAutomatic && priceModel.status == StatusPrice.OPEN && (priceModel.dateFinishPrice) < dateCurrent
                         ) {
-                            priceModel.status = StatusPrice.FINISHED
-                            val result = priceRepository.editPrice(priceModel)
+                            val result = priceRepository.editPrice(priceModel = priceModel)
                             if (result.isSuccess) {
                                 pricesStatusUpdate.add(priceModel)
                             } else {

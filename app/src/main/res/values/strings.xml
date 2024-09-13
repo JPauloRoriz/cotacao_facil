@@ -66,6 +66,7 @@
     <string name="partern">Parceiros</string>
     <string name="write_cnpj_partner">Digite o cnpj do fornecedor</string>
     <string name="add_new_partner">Procurar fornecedor</string>
+    <string name="your_partner">Buscar seus parceiros</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="not_possible_add_user">Não foi possível fazer o registro</string>
@@ -124,6 +125,7 @@
     <string name="name_is_mandatory">O campo \"Nome\" é obrigatório</string>
     <string name="confirmation_save_product_data_empty">Tem certeza que deseja salvar o produto com campo(s) vazios?</string>
     <string name="quantity_measurements">Quantidade:</string>
+    <string name="quantity_measurements_editable">Quantidade: %s</string>
     <string name="Stock">Estoque de produtos</string>
     <string name="search_hint_code_product">Digite o código do produto</string>
     <string name="search_hint_name_product">Digite o nome do produto</string>
@@ -218,6 +220,7 @@
     <string name="open">ABERTA</string>
     <string name="canceled">CANCELADA</string>
     <string name="finished">FINALIZADA</string>
+    <string name="pendency">PENDENTE</string>
     <string name="price_init_created">Cotação iniciada</string>
     <string name="error_date_finish_before_date_delivery">A data de entrega deve ser posterior a data de encerramento da cotação</string>
     <string name="price_finished_date">Finalizada em %s</string>
@@ -237,8 +240,9 @@
     <string name="edit_price_success">Seus preços na cotação %s foram salvos</string>
     <string name="produtos_price_title">Produtos da Cotação</string>
     <string name="real">R$</string>
+    <string name="real_edit">R$ %s</string>
     <string name="error_edit_price">É necessário editar pelo menos um preço para salvar as alterações</string>
-    <string name="participate">Participando</string>
+    <string name="participating">Participando</string>
     <string name="cancel_price">Cancelar Cotação</string>
     <string name="finish_price">Fechar cotação</string>
     <string name="finish_price_manual">Sem data para encerramento</string>
@@ -258,6 +262,26 @@
     <string name="text_camera">Camera</string>
     <string name="text_gallery">Galeria</string>
     <string name="purchase_order">Pedidos em aberto</string>
+    <string name="next_conflict">Próximo conflito</string>
+    <string name="find_conflict_price">Há produto(s) com mais de um fornecedor ganhador, para finalizar a cotação é preciso selecionar o ganhador de cada produto</string>
+    <string name="resolve_now">Resolver agora</string>
+    <string name="resolve_later">Resolver depois</string>
+    <string name="code_product_buyer">Cód. %s</string>
+    <string name="number_conflicts">Conflito de preços %s de %s</string>
+    <string name="error_resolve_conflict">Não foi possível decidir os ganhadores</string>
+    <string name="value_editable">R$ %s</string>
+    <string name="select_winner">Selecione um ganhador para esse produto:</string>
+    <string name="error_save_winner">Erro ao resolver conflito</string>
+    <string name="participate">Participou</string>
+    <string name="pendency_status_text">Pendência</string>
+    <string name="dialog_message_close_resolve_conflict">Se sair agora perderá as informações salvas. Quer mesmo sair?</string>
+    <string name="canceled_or_finished_with_success">A cotação de número %s foi %s com sucesso</string>
+    <string name="price_finished_or_canceled_success">Cotação %s com sucesso</string>
+    <string name="price_finished_message_finished_conflict">Aguardando resolução de pendências para encerrar a cotação %s</string>
+    <string name="tab_winners_to_product">Por produtos</string>
+    <string name="tab_winners_to_person">Por compradores</string>
+    <string name="product_price_empty">Produtos sem vencedores</string>
+    <string name="title_description_winners">Produtos com vencedores</string>
 
 
 </resources>

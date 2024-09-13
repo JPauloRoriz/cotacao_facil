@@ -5,5 +5,5 @@ import com.example.cotacaofacil.domain.model.UserModel
 import com.example.cotacaofacil.presentation.viewmodel.register.model.UserTypeSelected
 
 interface GetPricesProviderUseCase {
-    suspend fun invoke(cnpj: MutableList<String>, cnpjProvider : String, userModel: UserModel): Result<MutableList<PriceModel>>
+    suspend fun invoke(cnpj: MutableList<String>, cnpjProvider : String, userModel: UserModel, currentDate: Long): Result<MutableList<PriceModel>>
 }

@@ -49,7 +49,7 @@
                 android:layout_height="14dp"
                 android:src="@drawable/ic_edit"
                 android:layout_marginTop="6dp"
-                android:tint="@color/blackAlpha"
+                app:tint="@color/blackAlpha"
                 app:layout_constraintStart_toStartOf="@+id/textView_description_quantity"
                 app:layout_constraintEnd_toEndOf="@+id/textView_description_quantity"
                 app:layout_constraintTop_toBottomOf="@+id/textView_write_quantity"/>
@@ -326,5 +326,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminateTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

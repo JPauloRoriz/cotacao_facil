@@ -1,4 +1,4 @@
-package com.example.cotacaofacil.presentation.viewmodel.price.model
+package com.example.cotacaofacil.presentation.viewmodel.buyer.price.contractPriceInfo
 
 import com.example.cotacaofacil.domain.model.ProductPriceEditPriceModel
 

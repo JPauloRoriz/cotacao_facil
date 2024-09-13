@@ -7,7 +7,7 @@ import com.example.cotacaofacil.domain.usecase.price.contract.GetPriceByCodeUseC
 class GetPriceByCodeUseCaseImpl(
     private val repository: PriceRepository
 ) : GetPriceByCodeUseCase {
-    override suspend fun invoke(codePrice : String, cnpjBuyerCreator : String): Result<PriceModel> {
-      return  repository.getPriceByCode(priceCode = codePrice, cnpjBuyerCreator = cnpjBuyerCreator)
+    override suspend fun invoke(codePrice : String, cnpjBuyerCreator : String, currentDate : Long): Result<PriceModel> {
+      return  repository.getPriceByCode(priceCode = codePrice, cnpjBuyerCreator = cnpjBuyerCreator, currentDate = currentDate)
     }
 }

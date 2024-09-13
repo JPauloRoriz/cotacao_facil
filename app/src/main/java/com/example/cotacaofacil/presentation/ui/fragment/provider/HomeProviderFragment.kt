@@ -116,6 +116,7 @@ class HomeProviderFragment : Fragment() {
             binding.textViewCnpj.text = state.cnpj
             binding.textViewEmail.text = state.email
             binding.textViewNumberOpenPrice.text = state.quantityPricesOpen
+            binding.textViewNumberorderOpen.text = state.quantityOrderOpen
             binding.progressBarImageProfile.isVisible = state.loadingImageProfile
             Glide.with(this)
                 .load(state.imageProfile)

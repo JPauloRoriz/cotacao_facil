@@ -1,0 +1,16 @@
+<!-- res/drawable/diagonal_bg.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="18dp" /> <!-- Raio dos cantos, ajuste conforme necessário -->
+    <solid android:color="@color/yellow" /> <!-- Cor da faixa -->
+    <item android:top="0dp" android:left="0dp" android:bottom="-50dp" android:right="0dp">
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="0%"
+            android:pivotY="100%">
+            <shape android:shape="rectangle">
+                <solid android:color="@android:color/transparent" />
+            </shape>
+        </rotate>
+    </item>
+</shape>

@@ -11,5 +11,6 @@ data class StateReportInitPriceLiveData(
     var textDateDeliveryPrice: String = "",
     var textPriorityPrice: String = "",
     var colorPriorityPrice: Drawable? = null,
-    var descriptionPrice: String? = ""
+    var descriptionPrice: String? = "",
+    val isLoading : Boolean = false
 )

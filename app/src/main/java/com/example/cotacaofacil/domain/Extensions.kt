@@ -5,9 +5,7 @@ import android.net.ConnectivityManager
 import com.example.cotacaofacil.R
 import com.example.cotacaofacil.data.model.ProductResponse
 import com.example.cotacaofacil.domain.exception.DefaultException
-import com.example.cotacaofacil.domain.model.PriceModel
-import com.example.cotacaofacil.domain.model.ProductModel
-import com.example.cotacaofacil.domain.model.ProductPriceModel
+import com.example.cotacaofacil.domain.model.*
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.tasks.await
@@ -62,7 +60,7 @@ class Extensions {
 
         fun Context.isNetworkConnected(): Boolean {
             val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-            return cm!!.activeNetworkInfo != null && cm.activeNetworkInfo!!.isConnected
+            return cm?.activeNetworkInfo != null && cm.activeNetworkInfo?.isConnected == true
         }
 
         fun MutableList<ProductResponse>.toProductModel(): MutableList<ProductModel> {
@@ -115,7 +113,7 @@ class Extensions {
 
         fun PriceModel.getCnpjProviders(): MutableList<String> {
             val providers = mutableListOf<String>()
-             productsPrice.forEach {
+            productsPrice.forEach {
                 it.usersPrice.forEach {
                     if (!providers.contains(it.cnpjProvider)) {
                         providers.add(it.cnpjProvider)
@@ -124,9 +122,54 @@ class Extensions {
             }
             return providers
         }
-
-
     }
+}
 
+fun findSmallerPrice(productPrice: ProductPriceModel): ArrayList<UserPrice> {
+    val userPrices = arrayListOf<UserPrice>()
+    productPrice.usersPrice.forEach { userPrice ->
+        if (userPrices.isEmpty()) {
+            userPrices.add(userPrice)
+            return@forEach
+        }
+        if (userPrices.isNotEmpty() && userPrice.price < userPrices[0].price) {
+            userPrices.clear()
+            userPrices.add(userPrice)
+            return@forEach
+        }
+        if (userPrices.isNotEmpty() && userPrice.price == userPrices[0].price) {
+            userPrices.add(userPrice)
+            return@forEach
+        }
+    }
+    return userPrices
+}
 
+fun PriceModel.getUsersConflicts(): ArrayList<UserPrice>? {
+    productsPrice.forEach {
+        if (it.userWinner == null && it.usersPrice.size > 1) {
+            val usersWinners = findSmallerPrice(productPrice = it)
+            if (usersWinners.size > 1) {
+                return usersWinners
+            }
+        }
+    }
+    return null
+}
+
+fun MutableList<UserPrice?>.containsWithoutPrice(userPrice : UserPrice?) : Boolean{
+    val cnpjs = this.map { it?.cnpjProvider }
+    return cnpjs.contains(userPrice?.cnpjProvider)
+}
+
+ fun MutableList<PriceModel>.getQuantityOrdersOpen(cnpjProvider: String): MutableList<OrderProviderModel> {
+    val orderByCnpj: MutableList<OrderProviderModel> = mutableListOf()
+    this.forEach { priceModel ->
+        priceModel.orderProvider?.forEach { orderProvider ->
+            if (orderProvider.cnpjProvider == cnpjProvider) {
+                orderByCnpj.add(orderProvider)
+            }
+        }
+    }
+    return orderByCnpj
 }

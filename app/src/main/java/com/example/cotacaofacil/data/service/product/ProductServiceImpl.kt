@@ -57,26 +57,34 @@ class ProductServiceImpl(
     }
 
     override suspend fun deleteProduct(productResponse: ProductResponse): Result<Unit>? {
-        val result = firebaseFirestore.collection(PRODUCT)
-            .document(productResponse.cnpjBuyer)
-            .collection(MY_PRODUCT)
-            .document(productResponse.code)
-            .delete()
+        return try {
+            val result = firebaseFirestore.collection(PRODUCT)
+                .document(productResponse.cnpjBuyer)
+                .collection(MY_PRODUCT)
+                .document(productResponse.code)
+                .delete()
 
-        result.await()
-        return if (result.isSuccessful) {
-            Result.success(Unit)
-        } else {
+            result.await()
+            if (result.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(DefaultException())
+            }
+        } catch (e: Exception) {
             Result.failure(DefaultException())
         }
     }
 
-    override suspend fun getProductsByCode(cnpjUser: String, codeProduct: String): Result<ProductResponse>{
+    override suspend fun getProductsByCode(cnpjUser: String, codeProduct: String): Result<ProductResponse> {
         val productsRef = firebaseFirestore.collection(PRODUCT).document(cnpjUser).collection(MY_PRODUCT)
 
-       return productsRef.document(codeProduct).get().await().toObject(ProductResponse::class.java).runCatching {
-           this ?: throw DefaultException()
-       }
+        try {
+            return productsRef.document(codeProduct).get().await().toObject(ProductResponse::class.java).runCatching {
+                this ?: throw DefaultException()
+            }
+        } catch (e: Exception) {
+            throw DefaultException()
+        }
     }
 
     private suspend fun createProductCode(cnpjBuyer: String): String {

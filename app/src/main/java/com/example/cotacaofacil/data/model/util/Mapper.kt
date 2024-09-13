@@ -1,9 +1,6 @@
 package com.example.cotacaofacil.data.model.util
 
-import com.example.cotacaofacil.data.model.BodyCompanyResponse
-import com.example.cotacaofacil.data.model.HistoricResponse
-import com.example.cotacaofacil.data.model.PriceResponse
-import com.example.cotacaofacil.data.model.ProductPriceResponse
+import com.example.cotacaofacil.data.model.*
 import com.example.cotacaofacil.domain.Extensions.Companion.toProductModel
 import com.example.cotacaofacil.domain.Extensions.Companion.toProductResponse
 import com.example.cotacaofacil.domain.model.*
@@ -51,7 +48,7 @@ fun Result<MutableList<HistoricResponse>>.toHistoricModel(): Result<Any> {
 }
 
 
-fun PriceResponse.toPriceModel() : PriceModel{
+fun PriceResponse.toPriceModel(currentDate: Long): PriceModel {
     return PriceModel(
         code = code,
         productsPrice = productsPrice.toListProductsPriceModel(),
@@ -65,9 +62,11 @@ fun PriceResponse.toPriceModel() : PriceModel{
         allowAllProvider = allowAllProvider,
         deliveryDate = deliveryDate,
         description = description,
-        status = status
+        status = status,
+        orderProvider = orderProvider.toOrderProviderModelList(currentDate = currentDate, dateFinishDelivery = deliveryDate)
     )
 }
+
 fun PriceModel.toPriceResponse(): PriceResponse {
     return PriceResponse(
         code = code,
@@ -82,13 +81,14 @@ fun PriceModel.toPriceResponse(): PriceResponse {
         allowAllProvider = allowAllProvider,
         deliveryDate = deliveryDate,
         description = description,
-        status = status
+        status = status,
+        orderProvider = orderProvider.toOrderProviderResponseList()
     )
 }
 
 fun MutableList<ProductPriceModel>.toListProductsPriceResponse(): MutableList<ProductPriceResponse> {
     return map {
-       it.toProductPriceResponse()
+        it.toProductPriceResponse()
     }.toMutableList()
 }
 
@@ -102,7 +102,8 @@ fun ProductPriceModel.toProductPriceResponse(): ProductPriceResponse {
     return ProductPriceResponse(
         productModel = productModel.toProductResponse(),
         usersPrice = usersPrice,
-        quantityProducts = quantityProducts
+        quantityProducts = quantityProducts,
+        userWinner = userWinner,
     )
 }
 
@@ -110,11 +111,37 @@ fun ProductPriceResponse.toProductPriceModel(): ProductPriceModel {
     return ProductPriceModel(
         productModel = productModel.toProductModel(),
         usersPrice = usersPrice,
-        quantityProducts = quantityProducts
+        quantityProducts = quantityProducts,
+        userWinner = userWinner,
     )
 }
 
-fun  MutableList<ProductPriceModel>.toMutableListProductPriceEditModel(){
+fun MutableList<OrderProviderModel>?.toOrderProviderResponseList(): MutableList<OrderProviderResponse>? {
+    return this?.map { it.toOrderProviderResponse() }?.toMutableList()
+}
+
+fun MutableList<OrderProviderResponse>?.toOrderProviderModelList(currentDate: Long, dateFinishDelivery: Long): MutableList<OrderProviderModel>? {
+    return this?.map { it.toOrderProviderModel(currentDate = currentDate, finishDeliveryPrice = dateFinishDelivery) }?.toMutableList()
+}
+
+fun OrderProviderModel.toOrderProviderResponse(): OrderProviderResponse {
+    return OrderProviderResponse(
+        priceCode = priceCode,
+        orderCode = orderCode,
+        cnpjProvider = cnpjProvider,
+        productsPrice = productsPrice
+    )
+
+}
+
+fun OrderProviderResponse.toOrderProviderModel(currentDate: Long, finishDeliveryPrice: Long): OrderProviderModel {
+    return OrderProviderModel(
+        priceCode = priceCode,
+        orderCode = orderCode,
+        cnpjProvider = cnpjProvider,
+        productsPrice = productsPrice,
+        isDelayInDelivery = currentDate > finishDeliveryPrice
+    )
 
 }
 

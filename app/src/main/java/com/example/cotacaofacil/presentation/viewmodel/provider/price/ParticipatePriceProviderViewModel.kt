@@ -50,10 +50,10 @@ class ParticipatePriceProviderViewModel(
             viewModelScope.launch {
                 dateCurrentUseCase.invoke()
                     .onSuccess { currentDate ->
-                        userHelper.user?.cnpj?.let { cnpj ->
+                        userHelper.user?.let { user ->
                             val dateFinish = priceEditModel.dateFinishPrice
-                            if (dateFinish == null || currentDate < dateFinish) {
-                                setPricePartnerUseCase.invoke(cnpjPartner = cnpj, productsEditPrice = priceEditModel)
+                            if ((dateFinish == null || dateFinish == -1L) || currentDate < dateFinish) {
+                                setPricePartnerUseCase.invoke(cnpjPartner = user.cnpj, productsEditPrice = priceEditModel,nameUser = user.nameCorporation, currentDate)
                                     .onSuccess {
                                         val messageSuccess = context.getString(R.string.edit_price_success, stateLiveData.value?.textViewCodePrice)
                                         eventLiveData.postValue(ParticipatePriceEvent.EditPriceSuccess(messageSuccess))
@@ -61,7 +61,7 @@ class ParticipatePriceProviderViewModel(
                                         //todo tratamento de erro editar preços
                                     }
                             } else {
-                                //todo tratamento de erro prazo esgotado
+                                //todo tratamento encerrar a cotação pelo prazo esgotado
                             }
                         }
                     }

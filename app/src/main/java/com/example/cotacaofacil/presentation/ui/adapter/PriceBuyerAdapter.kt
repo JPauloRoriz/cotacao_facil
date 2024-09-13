@@ -49,7 +49,7 @@ class PriceBuyerAdapter : RecyclerView.Adapter<PriceBuyerAdapter.ItemPriceBuyerV
             when(priceModel.status){
                 StatusPrice.OPEN -> {
                     binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.green_price))
-                    binding.tvClosingDateLabel.text = priceModel.dateFinishPrice?.dateEmpty(binding.root.context, priceModel.closeAutomatic)
+                    binding.tvClosingDateLabel.text = priceModel.dateFinishPrice.dateEmpty(binding.root.context, priceModel.closeAutomatic)
                 }
                 StatusPrice.CANCELED -> {
                     binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.gray_price))
@@ -57,7 +57,11 @@ class PriceBuyerAdapter : RecyclerView.Adapter<PriceBuyerAdapter.ItemPriceBuyerV
                 }
                 StatusPrice.FINISHED -> {
                     binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.red_price))
-                    binding.tvClosingDateLabel.text = binding.root.context.getString(R.string.price_finished_date, priceModel.dateFinishPrice?.formatDateHistoric())
+                    binding.tvClosingDateLabel.text = binding.root.context.getString(R.string.price_finished_date, priceModel.dateFinishPrice.formatDateHistoric())
+                }
+                StatusPrice.PENDENCY -> {
+                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.teal_200))
+                    binding.tvClosingDateLabel.text = binding.root.context.getString(R.string.price_finished_message_finished_conflict)
                 }
             }
 

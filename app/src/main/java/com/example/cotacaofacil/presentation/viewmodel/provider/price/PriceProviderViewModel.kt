@@ -41,40 +41,71 @@ class PriceProviderViewModel(
         userHelper.user?.cnpj?.let { cnpj ->
             eventLiveData.postValue(PricePartnerEvent.SendCnpjToAdapter(cnpjProvider = cnpj))
         }
-        updateListPrices()
+        updateListPrices(selectedTabPosition = TAB_PRICES_OPEN)
     }
 
-    fun updateListPrices() {
+    fun updateListPrices(selectedTabPosition: Int = TAB_PRICES_OPEN) {
         stateLiveData.postValue(stateLiveData.value?.copy(showProgressBar = true))
         viewModelScope.launch(Dispatchers.IO) {
             userHelper.user?.let { userModel ->
-                userModel.id?.let {
-                    getAllPartnerModelUseCase.invoke(userModel.userTypeSelected, it, userModel.cnpj)
-                }?.onSuccess { partnersProvider ->
-                    getPricesProviderUseCase.invoke(
-                        partnersProvider.map { it.cnpjCorporation.convertCnpj() }.toMutableList(),
-                        userModel.cnpj,
-                        userModel
-                    ).onSuccess { prices ->
-                        if (prices.isEmpty()) {
-                            stateLiveData.postValue(
-                                stateLiveData.value?.copy(
-                                    pricesModel = mutableListOf(),
-                                    messageError = context.getString(R.string.price_empty_message_error),
-                                    showProgressBar = false
-                                )
-                            )
-                        } else {
-                            dateCurrentUseCase.invoke().onSuccess { currentDate ->
-                                allPrices = prices
+                dateCurrentUseCase.invoke().onSuccess { currentDate ->
+                    userModel.id?.let {
+                        getAllPartnerModelUseCase.invoke(userModel.userTypeSelected, it, userModel.cnpj)
+                    }?.onSuccess { partnersProvider ->
+                        getPricesProviderUseCase.invoke(
+                            cnpj = partnersProvider.map { it.cnpjCorporation.convertCnpj() }.toMutableList(),
+                            cnpjProvider = userModel.cnpj,
+                            userModel = userModel,
+                            currentDate = currentDate
+                        ).onSuccess { prices ->
+                            if (prices.isEmpty()) {
                                 stateLiveData.postValue(
                                     stateLiveData.value?.copy(
-                                        pricesModel = validationPricesProviderUseCase.invoke(prices, userModel.cnpj, currentDate),
+                                        pricesModel = mutableListOf(),
+                                        messageError = context.getString(R.string.price_empty_message_error),
+                                        showProgressBar = false
+                                    )
+                                )
+                            } else {
+                                allPrices = prices
+                                validationPricesProviderUseCase.invoke(prices, userModel.cnpj, currentDate)
+                                val pricesFilter = initFilterPricesOpen(selectedTabPosition, prices)
+                                stateLiveData.postValue(
+                                    stateLiveData.value?.copy(
+                                        pricesModel = pricesFilter,
                                         messageError = "",
                                         showProgressBar = false
                                     )
                                 )
-                            }.onFailure {
+                            }
+                        }.onFailure {
+                            stateLiveData.postValue(
+                                stateLiveData.value?.copy(
+                                    pricesModel = mutableListOf(),
+                                    messageError = context.getString(R.string.message_error_default_price),
+                                    showProgressBar = false
+                                )
+                            )
+                        }
+                    }?.onFailure { exception ->
+                        stateLiveData.postValue(
+                            stateLiveData.value?.copy(
+                                pricesModel = mutableListOf(),
+                                messageError = context.getString(R.string.message_error_default_price),
+                                showProgressBar = false
+                            )
+                        )
+                        when (exception) {
+                            is ListEmptyException -> {
+                                stateLiveData.postValue(
+                                    stateLiveData.value?.copy(
+                                        pricesModel = mutableListOf(),
+                                        messageError = context.getString(R.string.price_empty_message_error),
+                                        showProgressBar = false
+                                    )
+                                )
+                            }
+                            is DefaultException -> {
                                 stateLiveData.postValue(
                                     stateLiveData.value?.copy(
                                         pricesModel = mutableListOf(),
@@ -83,41 +114,12 @@ class PriceProviderViewModel(
                                     )
                                 )
                             }
-                        }
-                    }
-                        .onFailure { exception ->
-                            stateLiveData.postValue(
-                                stateLiveData.value?.copy(
-                                    pricesModel = mutableListOf(),
-                                    messageError = context.getString(R.string.message_error_default_price),
-                                    showProgressBar = false
-                                )
-                            )
-                            when (exception) {
-                                is ListEmptyException -> {
-                                    stateLiveData.postValue(
-                                        stateLiveData.value?.copy(
-                                            pricesModel = mutableListOf(),
-                                            messageError = context.getString(R.string.price_empty_message_error),
-                                            showProgressBar = false
-                                        )
-                                    )
-                                }
-                                is DefaultException -> {
-                                    stateLiveData.postValue(
-                                        stateLiveData.value?.copy(
-                                            pricesModel = mutableListOf(),
-                                            messageError = context.getString(R.string.message_error_default_price),
-                                            showProgressBar = false
-                                        )
-                                    )
-                                }
-                                is NoConnectionInternetException -> {
-                                    //todo tratamento para internet
-                                }
+                            is NoConnectionInternetException -> {
+                                //todo tratamento para internet
                             }
                         }
-                }?.onFailure {
+                    }
+                }.onFailure {
                     stateLiveData.postValue(
                         stateLiveData.value?.copy(
                             pricesModel = mutableListOf(),
@@ -146,6 +148,9 @@ class PriceProviderViewModel(
             StatusPrice.FINISHED -> {
                 eventLiveData.postValue(PricePartnerEvent.TapOnPriceFinishedOrCanceled(priceModel))
             }
+            StatusPrice.PENDENCY -> {
+                eventLiveData.postValue(PricePartnerEvent.TapOnPriceFinishedPendency(priceModel))
+            }
             else -> {
                 stateLiveData.postValue(
                     stateLiveData.value?.copy(
@@ -161,21 +166,26 @@ class PriceProviderViewModel(
     private fun updatePricesHour(priceModel: PriceModel) {
         viewModelScope.launch {
             val newPriceModel = updateHourPricesUseCase.invoke(priceModel)
-            stateLiveData.value?.pricesModel?.let {
-                val prices = it
-                if (prices[prices.indexOf(priceModel)] != newPriceModel) {
-                    prices[prices.indexOf(priceModel)] = newPriceModel
-                    stateLiveData.postValue(stateLiveData.value?.copy(pricesModel = prices))
-                }
+            if (newPriceModel == null) {
+                updateListPrices()
             }
         }
     }
 
-    fun filterPrices(statusPrice: StatusPrice?) {
-        statusPrice?.let {
-            stateLiveData.postValue(stateLiveData.value?.pricesModel?.filter { it.status == statusPrice }?.toMutableList()
-                ?.let { stateLiveData.value?.copy(pricesModel = it) })
-        } ?: stateLiveData.postValue(stateLiveData.value?.copy(pricesModel = allPrices))
+    private fun initFilterPricesOpen(tabSelected: Int, prices: MutableList<PriceModel>): MutableList<PriceModel> {
+        return if(tabSelected == TAB_PRICES_OPEN) {
+            prices.filter { it.status == StatusPrice.OPEN || it.status == StatusPrice.PENDENCY }.toMutableList()
+        } else {
+            prices
+        }
+    }
+
+    fun tapOnTab(tabSelected: Int) {
+        updateListPrices(selectedTabPosition = tabSelected)
+    }
+
+    companion object {
+        private const val TAB_PRICES_OPEN = 0
     }
 
 }

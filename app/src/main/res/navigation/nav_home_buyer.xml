@@ -30,6 +30,9 @@
         <action
             android:id="@+id/action_priceBuyerFragment_to_createPriceFragment"
             app:destination="@id/createPriceFragment" />
+        <action
+            android:id="@+id/action_priceBuyerFragment_to_winnerPriceFragment"
+            app:destination="@id/winnerPriceFragment" />
     </fragment>
     <fragment
         android:id="@+id/partnerBuyerFragment"
@@ -38,6 +41,17 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/winnerPriceFragment"
+        android:name="com.example.cotacaofacil.presentation.ui.fragment.buyer.WinnersPriceFragment"
+        android:label="WinnersPriceFragment"
+        />
+
+    <activity
+        android:id="@+id/priceInfoActivity"
+        android:name="com.example.cotacaofacil.presentation.ui.activity.PriceInfoActivity"
+        android:label="PriceInfoActivity" >
+    </activity>
 
 
 </navigation>

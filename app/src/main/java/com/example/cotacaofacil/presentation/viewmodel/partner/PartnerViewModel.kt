@@ -1,7 +1,6 @@
 package com.example.cotacaofacil.presentation.viewmodel.partner
 
 import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,7 +30,7 @@ class PartnerViewModel(
     private val getImageProfileUseCase: GetImageProfileUseCase,
     private val userHelper: UserHelper
 ) : ViewModel() {
-    val stateLiveData = MutableLiveData(PartnerState())
+    val stateLiveData = MutableLiveData(PartnerState(textButtonPartner =  context.getString(R.string.add_new_partner)))
     val eventLiveData = SingleLiveEvent<PartnerEvent>()
     val user = userHelper.user
 
@@ -54,7 +53,7 @@ class PartnerViewModel(
                                     isLoading = false,
                                     listPartnerModel = mutableListOf(),
                                     messageError = setMessageError(isAll),
-                                    numberNotifications = listPartnersFilter(false, listPartnerModel).size.toString()
+                                    numberNotifications = listPartnersFilter(false, listPartnerModel).size.toString(),
                                 )
                             )
 
@@ -65,7 +64,12 @@ class PartnerViewModel(
                                     isLoading = false,
                                     showImageError = false,
                                     listPartnerModel = listFilter,
-                                    numberNotifications = listPartnersFilter(isAllPartners = false, listAllPartners = listPartnerModel).size.toString()
+                                    numberNotifications = listPartnersFilter(
+                                        isAllPartners = false,
+                                        listAllPartners = listPartnerModel
+                                    ).size.toString(),
+                                    textButtonPartner = setTextButton(isAll),
+                                    showInputLayout = isAll
                                 )
                             )
                             getImageProfile(listFilter = listFilter)
@@ -75,7 +79,7 @@ class PartnerViewModel(
         }
     }
 
-    private suspend fun getImageProfile(listFilter : MutableList<PartnerModel>) {
+    private suspend fun getImageProfile(listFilter: MutableList<PartnerModel>) {
         listFilter.forEach { partnerModel ->
             getImageProfileUseCase.invoke(partnerModel.cnpjCorporation)
                 .onSuccess { imageUrl ->
@@ -89,7 +93,7 @@ class PartnerViewModel(
         isAllPartners: Boolean,
         listAllPartners: MutableList<PartnerModel>
     ): MutableList<PartnerModel> {
-        return if(isAllPartners){
+        return if (isAllPartners) {
             listAllPartners.filter { partnerModel ->
                 partnerModel.isMyPartner != StatusIsMyPartner.TO_RESPOND && partnerModel.isMyPartner != StatusIsMyPartner.TO_RESPOND
             }.toMutableList()
@@ -168,7 +172,7 @@ class PartnerViewModel(
                                             listPartnerModel = mutableListOf(),
                                             isLoading = false,
                                             messageError = context.getString(R.string.default_exception_find),
-                                            showImageError = true
+                                            showImageError = true,
                                         )
                                     )
                                 }
@@ -390,6 +394,14 @@ class PartnerViewModel(
             }
         } else {
             context.getString(R.string.request)
+        }
+    }
+
+    private fun setTextButton(isAll: Boolean): String {
+        return if (isAll) {
+            context.getString(R.string.add_new_partner)
+        } else {
+            context.getString(R.string.your_partner)
         }
     }
 

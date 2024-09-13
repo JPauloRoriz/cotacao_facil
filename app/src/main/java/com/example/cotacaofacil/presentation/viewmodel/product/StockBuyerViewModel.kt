@@ -191,14 +191,14 @@ class StockBuyerViewModel(
 
     fun tapOnTrash(productModel: ProductModel?) {
         viewModelScope.launch(Dispatchers.IO) {
-            productModel.let { productModel ->
-                deleteProductUseCase.invoke(productModel as ProductModel)
+            productModel?.let { productModel ->
+                deleteProductUseCase.invoke(productModel = productModel)
                     ?.onSuccess {
                         user?.cnpj?.let { it1 ->
                             getAllProductsUseCase.invoke(cnpjUser = it1)
                                 .onSuccess {
                                     eventLiveData.postValue(StockEvent.UpdateList(it))
-                                    eventLiveData.postValue(StockEvent.DeleteProduct(context.getString(R.string.product_deleted_success)))
+                                    eventLiveData.postValue(StockEvent.FeedbackMessage(context.getString(R.string.product_deleted_success)))
                                 }
                                 .onFailure {
                                     stateLiveData.postValue(
@@ -213,7 +213,7 @@ class StockBuyerViewModel(
                         }
                     }
                     ?.onFailure {
-                        stateLiveData.postValue(stateLiveData.value?.copy(messageError = context.getString(R.string.impossible_delete_product)))
+                        eventLiveData.postValue(StockEvent.FeedbackMessage(message = context.getString(R.string.impossible_delete_product)))
                     }
             }
         }

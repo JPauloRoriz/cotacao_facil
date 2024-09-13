@@ -73,9 +73,10 @@ fun HistoryModel.toHistoricResponse(): HistoricResponse {
 }
 
 fun PriceModel.toPriceEditModel(cnpjPartner : String): PriceEditModel {
+    val dateFinish = if(closeAutomatic) dateFinishPrice else -1L
     return PriceEditModel(
         code = code,
-        dateFinishPrice = dateFinishPrice,
+        dateFinishPrice = dateFinish,
         productsEdit = productsPrice.toProductEditPrice(cnpjPartner),
         cnpjBuyer = cnpjBuyerCreator
     )

@@ -7,9 +7,9 @@ import com.example.cotacaofacil.domain.usecase.historic.contract.AddHistoricUseC
 
 class AddHistoricUseCaseImpl(
     private val repository: HistoryRepository
-) : AddHistoricUseCase{
-    override suspend fun addHistoricAddPrice(date: Long, cnpjUser: String, codePrice: String) {
-        addHistoryModel(TypeHistory.CREATE_PRICE, date, codePrice, cnpjUser)
+) : AddHistoricUseCase {
+    override suspend fun addHistoric(date: Long, cnpjUser: String, codePrice: String, typeHistory: TypeHistory) {
+        addHistoryModel(typeHistory, date, codePrice, cnpjUser)
     }
 
     private suspend fun addHistoryModel(typeHistory: TypeHistory, date: Long, codePrice: String, cnpj: String) {

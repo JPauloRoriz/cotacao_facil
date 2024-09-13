@@ -10,5 +10,7 @@ data class PartnerState(
     val listPartnerModel : MutableList<PartnerModel> = mutableListOf(),
     val showImageError : Boolean = false,
     val numberNotifications : String = "",
-    val textTitleList : String = ""
+    val textTitleList : String = "",
+    val textButtonPartner : String = "",
+    val showInputLayout : Boolean = true,
 )

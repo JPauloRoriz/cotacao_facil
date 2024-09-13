@@ -25,10 +25,11 @@ class PriceRepositoryImpl(
     override suspend fun getPricesByCnpj(
         cnpjUser: String,
         userTypeSelected: UserTypeSelected,
-        userModel: UserModel
+        userModel: UserModel,
+        currentDate: Long
     ): Result<MutableList<PriceModel>> {
         val pricesModel: MutableList<PriceModel> = mutableListOf()
-        val result = priceService.getPricesByCnpj(cnpjUser)
+        val result = priceService.getPricesByCnpj(cnpjUser, currentDate)
         if (result.isSuccess) {
             result.map {
                 it.forEach { priceResponse ->
@@ -59,44 +60,31 @@ class PriceRepositoryImpl(
     override suspend fun getPricesProvider(
         cnpjBuyers: MutableList<String>,
         cnpjProvider: String,
-        userModel: UserModel
+        userModel: UserModel,
+        currentDate: Long
     ): Result<MutableList<PriceModel>> {
         return runCatching {
             cnpjBuyers.mapNotNull { cnpj ->
-                priceService.getPricesByCnpj(cnpj).map { prices ->
+                priceService.getPricesByCnpj(cnpj, currentDate).map { prices ->
                     prices.filter {
                         val cnpjPartnersAuthorized = it.partnersAuthorized.map { it.cnpjCorporation }
                         cnpjPartnersAuthorized.contains(cnpjProvider)
                     }.map { priceResponse ->
-                        PriceModel(
-                            code = priceResponse.code,
-                            productsPrice = productResponseToProductModelList(priceResponse.productsPrice),
-                            partnersAuthorized = priceResponse.partnersAuthorized,
-                            dateFinishPrice = priceResponse.dateFinishPrice,
-                            dateStartPrice = priceResponse.dateStartPrice,
-                            priority = priceResponse.priority,
-                            cnpjBuyerCreator = priceResponse.cnpjBuyerCreator,
-                            closeAutomatic = priceResponse.closeAutomatic,
-                            allowAllProvider = priceResponse.allowAllProvider,
-                            deliveryDate = priceResponse.deliveryDate,
-                            description = priceResponse.description,
-                            status = priceResponse.status,
-                            nameCompanyCreator = priceResponse.nameCompanyCreator
-                        )
+                        priceResponse.toPriceModel(currentDate = currentDate)
                     }
                 }.getOrNull()
             }.flatten().toMutableList()
         }
     }
 
-    override suspend fun setPricesPartner(cnpjPartner: String, productsEditPrice: PriceEditModel): Result<Any> {
-        val partnerModel = priceService.getPriceByCnpj(code = productsEditPrice.code, cnpjBuyer = productsEditPrice.cnpjBuyer)
+    override suspend fun setPricesPartner(cnpjPartner: String, productsEditPrice: PriceEditModel, userName : String,currentDate: Long): Result<Any> {
+        val partnerModel = priceService.getPriceByCnpj(code = productsEditPrice.code, cnpjBuyer = productsEditPrice.cnpjBuyer,currentDate )
         return partnerModel.map { priceResponse ->
             productsEditPrice.productsEdit.forEach { productEdit ->
                 val productPrice = priceResponse.productsPrice.find { it.productModel.code == productEdit.productModel.code }
 
                 if (productEdit.price > 0.0) {
-                    val userPrice = UserPrice(cnpjProvider = cnpjPartner, price = productEdit.price)
+                    val userPrice = UserPrice(cnpjProvider = cnpjPartner, price = productEdit.price, nameUser = userName)
                     removePrice(productPrice, cnpjPartner)
                     productPrice?.usersPrice?.add(userPrice)
                 } else {
@@ -112,8 +100,8 @@ class PriceRepositoryImpl(
         }.getOrElse { Result.failure(PriceNotFindException()) }
     }
 
-    override suspend fun getPriceByCode(priceCode: String, cnpjBuyerCreator: String): Result<PriceModel> {
-        return priceService.getPriceByCnpj(code = priceCode, cnpjBuyer = cnpjBuyerCreator).map { it.toPriceModel() }
+    override suspend fun getPriceByCode(priceCode: String, cnpjBuyerCreator: String, currentDate: Long): Result<PriceModel> {
+        return priceService.getPriceByCnpj(code = priceCode, cnpjBuyer = cnpjBuyerCreator, currentDate).map { it.toPriceModel(currentDate = currentDate) }
     }
 
     private fun removePrice(productPrice: ProductPriceResponse?, cnpjPartner: String) {
@@ -131,6 +119,7 @@ class PriceRepositoryImpl(
             productPriceModel.usersPrice = it.usersPrice
             productPriceModel.quantityProducts = it.quantityProducts
             productPriceModel.isSelected = false
+            productPriceModel.userWinner = it.userWinner
             listProductsPriceModel.add(productPriceModel)
         }.toMutableList()
         return listProductsPriceModel

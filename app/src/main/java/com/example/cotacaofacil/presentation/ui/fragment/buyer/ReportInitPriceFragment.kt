@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.cotacaofacil.databinding.FragmentReportInitPriceBinding
 import com.example.cotacaofacil.domain.model.PriceModel
@@ -51,6 +49,7 @@ class ReportInitPriceFragment : Fragment() {
             binding.textViewPriorityPriceValue.setCompoundDrawablesRelativeWithIntrinsicBounds(state.colorPriorityPrice, null, null, null)
             binding.textViewPriorityPriceValue.text = state.textPriorityPrice
             binding.textViewDescrition.text = state.descriptionPrice
+            binding.progressBar.isVisible = state.isLoading
         }
 
         viewModel.eventLiveData.observe(viewLifecycleOwner) { event ->

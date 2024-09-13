@@ -14,8 +14,11 @@ import com.example.cotacaofacil.domain.Extensions.Companion.foneNotIsEmpty
 import com.example.cotacaofacil.domain.Extensions.Companion.formatCnpj
 import com.example.cotacaofacil.domain.Extensions.Companion.nameCorporationNotIsEmpty
 import com.example.cotacaofacil.domain.Extensions.Companion.nomeFantasyNotIsEmpty
+import com.example.cotacaofacil.domain.getQuantityOrdersOpen
 import com.example.cotacaofacil.domain.model.BodyCompanyModel
+import com.example.cotacaofacil.domain.model.StatusPrice
 import com.example.cotacaofacil.domain.model.UserModel
+import com.example.cotacaofacil.domain.usecase.date.contract.DateCurrentUseCase
 import com.example.cotacaofacil.domain.usecase.home.contract.EditImageProfileUseCase
 import com.example.cotacaofacil.domain.usecase.home.contract.GetBodyCompanyModelUseCase
 import com.example.cotacaofacil.domain.usecase.home.contract.GetImageProfileUseCase
@@ -37,6 +40,7 @@ class HomeProviderViewModel(
     private val getAllPartnerModelUseCase: GetAllPartnerModelUseCase,
     private val getPricesProviderUseCase: GetPricesProviderUseCase,
     private val context: Context,
+    private val currentDateUseCase: DateCurrentUseCase,
     private val bodyCompanyHelper: BodyCompanyHelper
 ) : ViewModel() {
 
@@ -47,18 +51,29 @@ class HomeProviderViewModel(
         viewModelScope.launch {
             userHelper.user?.let { user ->
                 loadDataUser(user = user)
-                getQuantityPricesOpen(user)
+                getQuantityPricesOpen(user = user)
             }
         }
     }
 
     private suspend fun getQuantityPricesOpen(user: UserModel) {
-        getAllPartnerModelUseCase.invoke(userTypeSelected = user.userTypeSelected, idUser = user.id ?: "", cnpj = user.cnpj)
-            .onSuccess { partnersProvider ->
-                val listCnpjs = partnersProvider.map { it.cnpjCorporation.convertCnpj() }.toMutableList()
-                getPricesProviderUseCase.invoke(cnpj = listCnpjs, cnpjProvider = user.cnpj, userModel = user)
-                    .onSuccess { prices -> state.postValue(state.value?.copy(quantityPricesOpen = prices.size.toString())) }
-            }
+        currentDateUseCase.invoke().onSuccess { currentDate ->
+            getAllPartnerModelUseCase.invoke(userTypeSelected = user.userTypeSelected, idUser = user.id ?: "", cnpj = user.cnpj)
+                .onSuccess { partnersProvider ->
+                    val listCnpjs = partnersProvider.map { it.cnpjCorporation.convertCnpj() }.toMutableList()
+                    getPricesProviderUseCase.invoke(cnpj = listCnpjs, cnpjProvider = user.cnpj, userModel = user, currentDate)
+                        .onSuccess { prices ->
+                            val quantityOrderOpen = prices.filter { it.status == StatusPrice.FINISHED }.toMutableList()
+                                .getQuantityOrdersOpen(cnpjProvider = user.cnpj).size
+                            state.postValue(
+                                state.value?.copy(
+                                    quantityPricesOpen = prices.filter { it.status == StatusPrice.OPEN }.size.toString(),
+                                    quantityOrderOpen = quantityOrderOpen.toString()
+                                )
+                            )
+                        }
+                }
+        }
     }
 
     private suspend fun loadDataUser(user: UserModel) {

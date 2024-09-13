@@ -9,7 +9,7 @@ import com.example.cotacaofacil.presentation.viewmodel.register.model.UserTypeSe
 class GetPricesBuyerUserCaseImpl(
     private val repository: PriceRepository
 ) : GetPricesBuyerUserCase {
-    override suspend fun invoke(cnpjUser : String,userTypeSelected : UserTypeSelected, userModel: UserModel): Result<MutableList<PriceModel>> {
-        return repository.getPricesByCnpj(cnpjUser, userTypeSelected, userModel)
+    override suspend fun invoke(cnpjUser: String, userTypeSelected: UserTypeSelected, userModel: UserModel, currentDate: Long): Result<MutableList<PriceModel>> {
+        return repository.getPricesByCnpj(cnpjUser, userTypeSelected, userModel, currentDate)
     }
 }

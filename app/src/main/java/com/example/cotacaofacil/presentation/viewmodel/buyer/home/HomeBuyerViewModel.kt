@@ -2,7 +2,6 @@ package com.example.cotacaofacil.presentation.viewmodel.buyer.home
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +19,7 @@ import com.example.cotacaofacil.domain.model.BodyCompanyModel
 import com.example.cotacaofacil.domain.model.ProductModel
 import com.example.cotacaofacil.domain.model.StatusPrice
 import com.example.cotacaofacil.domain.model.UserModel
+import com.example.cotacaofacil.domain.usecase.date.contract.DateCurrentUseCase
 import com.example.cotacaofacil.domain.usecase.home.contract.EditImageProfileUseCase
 import com.example.cotacaofacil.domain.usecase.home.contract.GetBodyCompanyModelUseCase
 import com.example.cotacaofacil.domain.usecase.home.contract.GetImageProfileUseCase
@@ -29,7 +29,6 @@ import com.example.cotacaofacil.presentation.ui.dialog.OptionPhoto
 import com.example.cotacaofacil.presentation.viewmodel.base.SingleLiveEvent
 import com.example.cotacaofacil.presentation.viewmodel.buyer.home.contract.HomeBuyerEvent
 import com.example.cotacaofacil.presentation.viewmodel.buyer.home.contract.HomeBuyerState
-import com.example.cotacaofacil.presentation.viewmodel.provider.home.contract.HomeProviderEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
@@ -44,6 +43,7 @@ class HomeBuyerViewModel(
     private val getPricesBuyerUserCase: GetPricesBuyerUserCase,
     private val editImageProfileUseCase: EditImageProfileUseCase,
     private val getImageProfileUseCase: GetImageProfileUseCase,
+    private val currentUseCase: DateCurrentUseCase,
 ) : ViewModel() {
 
     val event = SingleLiveEvent<HomeBuyerEvent>()
@@ -59,19 +59,21 @@ class HomeBuyerViewModel(
 
     private fun loadDataPrice(user: UserModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            getPricesBuyerUserCase.invoke(cnpjUser = user.cnpj, userTypeSelected = user.userTypeSelected, userModel = user)
-                .onSuccess { prices ->
-                    val pricesStatusOpen = prices.filter { it.status == StatusPrice.OPEN }
-                    state.postValue(
-                        state.value?.copy(
-                            quantityPrice = pricesStatusOpen.size.toString()
+            currentUseCase.invoke().onSuccess { currentDate ->
+                getPricesBuyerUserCase.invoke(cnpjUser = user.cnpj, userTypeSelected = user.userTypeSelected, userModel = user, currentDate = currentDate)
+                    .onSuccess { prices ->
+                        val pricesStatusOpen = prices.filter { it.status == StatusPrice.OPEN }
+                        state.postValue(
+                            state.value?.copy(
+                                quantityPrice = pricesStatusOpen.size.toString()
+                            )
                         )
-                    )
 
-                }
-                .onFailure {
+                    }
+                    .onFailure {
 
-                }
+                    }
+            }
         }
     }
 

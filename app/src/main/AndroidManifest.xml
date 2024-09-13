@@ -95,6 +95,12 @@
             android:exported="true"
             android:theme="@style/Theme.CotacaoFacil">
         </activity>
+
+        <activity
+            android:name=".presentation.ui.activity.ResolveConflictActivity"
+            android:exported="true"
+            android:theme="@style/Theme.CotacaoFacil">
+        </activity>
     </application>
 
 </manifest>

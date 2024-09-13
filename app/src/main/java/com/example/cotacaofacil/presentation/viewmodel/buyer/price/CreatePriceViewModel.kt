@@ -59,7 +59,6 @@ class CreatePriceViewModel(
                         user.cnpj.let { userCnpj ->
                             getAllPartnerModelUseCase.invoke(userTypeSelected = UserTypeSelected(userBuyerSelected = true), userId, userCnpj)
                                 .onSuccess {
-//                                    val result = PartnerMock.listPartner()
                                     val result = it.filter { it.isMyPartner == StatusIsMyPartner.TRUE }.toMutableList()
                                     if (result.isNotEmpty()) {
                                         listAllPartners = result
@@ -133,45 +132,6 @@ class CreatePriceViewModel(
 
     }
 
-//    fun filterSearch(text: CharSequence?) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            user?.userTypeSelected?.let { user.id?.let { it1 -> getAllPartnerModelUseCase.invoke(it, it1, user.cnpj) } }
-//                ?.onSuccess { listResult ->
-//                    val listPartner = listResult.filter { it.isMyPartner == StatusIsMyPartner.TRUE }.toMutableList()
-//                    val resultFilter: MutableList<PartnerModel> = mutableListOf()
-//                    if (text?.isEmpty() == true) {
-//                        createPriceEvent.postValue(CreatePriceEvent.UpdateListEvent(listPartner))
-//                    } else {
-//                        listPartner.forEach {
-//                            if (text?.let { it1 -> it.cnpjCorporation.contains(it1, true) } == true) {
-//                                resultFilter.add(it)
-//                            }
-//                        }
-//                        if (resultFilter.isNotEmpty()) {
-//                            createPriceState.postValue(createPriceState.value?.copy(listPartnersSelect = resultFilter, messageErrorPartners = ""))
-//                        } else {
-//                            createPriceState.postValue(
-//                                createPriceState.value?.copy(
-//                                    messageErrorPartners = context.getString(R.string.not_find_partner),
-//                                    listPartnersSelect = mutableListOf()
-//                                )
-//                            )
-//                        }
-//                    }
-//                }
-//                ?.onFailure {
-//                    createPriceState.postValue(
-//                        createPriceState.value?.copy(
-//                            listPartnersSelect = mutableListOf(),
-//                            messageErrorPartners = context.getString(R.string.message_error_find_partners)
-//                        )
-//                    )
-//                }
-//
-//        }
-//
-//    }
-
     fun tapOnButtonNext(
         autoClose: Boolean,
         allowAllPartners: Boolean,
@@ -185,7 +145,15 @@ class CreatePriceViewModel(
             currentDateUseCase.invoke().onSuccess { currentDate ->
                     user?.nameCorporation?.let {
                         validationNextCreatePriceUseCase.invoke(
-                            autoClose, allowAllPartners, date, dateDelivery, partners, description, priority, currentDate, it
+                            autoClose = autoClose,
+                            allowAllPartners = allowAllPartners,
+                            date = date,
+                            dateDelivery = dateDelivery,
+                            partners = partners,
+                            description = description,
+                            priority = priority,
+                            currentDate = currentDate,
+                            nameCompanyCreator = it
                         ).onSuccess { priceModel ->
                                 val priorityPrice: PriorityPrice? = priority
                                 priorityPrice?.let { priority ->

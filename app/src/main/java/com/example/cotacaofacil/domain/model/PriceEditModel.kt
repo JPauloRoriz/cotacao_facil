@@ -7,6 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class PriceEditModel(
     val cnpjBuyer : String = "",
     val code: String = "",
-    var dateFinishPrice: Long? = 0,
+    var dateFinishPrice: Long? = -1L,
     val productsEdit: MutableList<ProductPriceEditPriceModel> = mutableListOf()
 ) : Parcelable

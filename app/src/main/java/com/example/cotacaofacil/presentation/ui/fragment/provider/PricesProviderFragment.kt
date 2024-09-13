@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import com.example.cotacaofacil.R
 import com.example.cotacaofacil.databinding.FragmentPriceProviderBinding
 import com.example.cotacaofacil.domain.mapper.toPriceEditModel
-import com.example.cotacaofacil.domain.model.StatusPrice
 import com.example.cotacaofacil.presentation.ui.activity.ParticipatePriceProviderActivity
 import com.example.cotacaofacil.presentation.ui.activity.ParticipatePriceProviderActivity.Companion.PRICE_MODEL
 import com.example.cotacaofacil.presentation.ui.adapter.PriceProviderAdapter
@@ -63,6 +63,13 @@ class PricesProviderFragment : Fragment() {
                     startActivityForResult(intent, UPDATE_PRICES)
                 }
                 is PricePartnerEvent.SendCnpjToAdapter -> adapter.cnpjProvider = event.cnpjProvider
+                is PricePartnerEvent.TapOnPriceFinishedPendency -> {
+                    Toast.makeText(
+                        requireContext(),
+                        requireContext().getString(R.string.price_finished_message_finished_conflict, event.priceModel.cnpjBuyerCreator),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
@@ -70,34 +77,21 @@ class PricesProviderFragment : Fragment() {
     private fun setupListeners() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                when (tab?.position) {
-                    0 -> {
-                        viewModel.filterPrices(statusPrice = StatusPrice.OPEN)
-                    }
-                    1 -> {
-                        viewModel.filterPrices(statusPrice = null)
-                    }
-                }
+                tab?.position?.let { viewModel.tapOnTab(it) }
             }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-
-            }
-
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
-        adapter.clickPrice = {
-            viewModel.tapOnPrice(it)
-        }
+        adapter.clickPrice =
+            {
+                viewModel.tapOnPrice(it)
+            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == UPDATE_PRICES && resultCode == RESULT_OK){
-            viewModel.updateListPrices()
+        if (requestCode == UPDATE_PRICES && resultCode == RESULT_OK) {
+            viewModel.updateListPrices(binding.tabLayout.selectedTabPosition)
         }
     }
 

@@ -79,7 +79,6 @@ import com.example.cotacaofacil.presentation.viewmodel.buyer.price.*
 import com.example.cotacaofacil.presentation.viewmodel.history.HistoryViewModel
 import com.example.cotacaofacil.presentation.viewmodel.login.LoginViewModel
 import com.example.cotacaofacil.presentation.viewmodel.partner.PartnerViewModel
-import com.example.cotacaofacil.presentation.viewmodel.price.PriceInfoViewModel
 import com.example.cotacaofacil.presentation.viewmodel.product.AddProductViewModel
 import com.example.cotacaofacil.presentation.viewmodel.product.StockBuyerViewModel
 import com.example.cotacaofacil.presentation.viewmodel.provider.home.HomeProviderViewModel
@@ -90,7 +89,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -106,9 +104,9 @@ val appModule = module {
     viewModel { PartnerViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { AddProductViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { StockBuyerViewModel(get(), get(), get(), get(), get()) }
-    viewModel { HomeBuyerViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { HomeProviderViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { PriceBuyerViewModel(get(), get(), get(), get(), get()) }
+    viewModel { HomeBuyerViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { HomeProviderViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { PriceBuyerViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { PriceProviderViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { CreatePriceViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { EditDateHourViewModel(get(), get()) }
@@ -120,7 +118,7 @@ val appModule = module {
             cnpjBuyerCreator = cnpjBuyerCreator,
             getPriceByCodeUseCase = get(),
             context = get(),
-            currentUseCase = get(),
+            currentDateUseCase = get(),
             editPriceUseCase = get()
         )
     }
@@ -132,6 +130,17 @@ val appModule = module {
             dateCurrentUseCase = get(),
             setPricePartnerUseCase = get(),
         )
+    }
+
+    viewModel { (priceModel : PriceModel) ->
+        ResolveConflictViewModel(
+            context = get(),
+            getImageProfileUseCase = get(),
+            priceModel = priceModel
+        )
+    }
+    viewModel { (priceModel : PriceModel) ->
+        WinnerPriceViewModel( price = priceModel, get(), get())
     }
 
 
@@ -163,7 +172,7 @@ val appModule = module {
     factory<ValidationPricesProviderUseCase> { ValidationPricesProviderUseCaseImpl(get()) }
     factory<UpdateHourPricesUseCase> { UpdateHourPricesUseCaseImpl(get(), get()) }
     factory<EditPriceUseCase> { EditPriceUseCaseImpl(get()) }
-    factory<SetPricePartnerUseCase> { SetPricePartnerUseCaseUseCaseImpl(get()) }
+    factory<SetPricePartnerUseCase> { SetPricePartnerUseCaseUseCaseImpl(get(), get()) }
     factory<GetPriceByCodeUseCase> { GetPriceByCodeUseCaseImpl(get()) }
     factory<EditImageProfileUseCase> { EditImageProfileUseCaseImpl(get()) }
     factory<GetImageProfileUseCase> { GetImageProfileUseCaseImpl(get()) }
@@ -201,7 +210,7 @@ val appModule = module {
     single { get<Retrofit>().create(CnpjServiceImpl::class.java) }
     single { Firebase.firestore }
     single { Firebase.auth }
-    single { FirebaseStorage.getInstance()}
+    single { FirebaseStorage.getInstance() }
     single<SharedPreferences> { androidContext().getSharedPreferences("my_prefs", Context.MODE_PRIVATE) }
     single {
         val context: Context = androidContext()

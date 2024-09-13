@@ -147,7 +147,8 @@
         tools:layout_editor_absoluteX="20dp"
         tools:listitem="@layout/item_product"
         tools:visibility="gone"
-        android:paddingBottom="40dp"/>
+        android:clipToPadding="true"
+        android:paddingBottom="80dp"/>
 
 
     <ProgressBar

@@ -8,7 +8,7 @@ import com.example.cotacaofacil.domain.usecase.price.contract.GetPricesProviderU
 class GetPricesProviderUseCaseImpl(
     private val repository: PriceRepository
 ) : GetPricesProviderUseCase {
-    override suspend fun invoke(cnpj: MutableList<String>, cnpjProvider : String, userModel: UserModel): Result<MutableList<PriceModel>> {
-        return repository.getPricesProvider(cnpj, cnpjProvider, userModel)
+    override suspend fun invoke(cnpj: MutableList<String>, cnpjProvider : String, userModel: UserModel, currentDate: Long): Result<MutableList<PriceModel>> {
+        return repository.getPricesProvider(cnpj, cnpjProvider, userModel, currentDate)
     }
 }

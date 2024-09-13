@@ -190,6 +190,8 @@ class PartnerFragment : Fragment() {
             binding.progressBar.isVisible = state.isLoading
             binding.textViewNumberNotifications.text = state.numberNotifications
             binding.textViewNameList.text = state.textTitleList
+            binding.editTextSearchView.isVisible = state.showInputLayout
+            binding.buttonAddNewPartner.text = state.textButtonPartner
         }
     }
 

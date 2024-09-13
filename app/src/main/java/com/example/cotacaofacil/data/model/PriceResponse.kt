@@ -13,12 +13,14 @@ data class PriceResponse (
         val partnersAuthorized : MutableList<PartnerModel> = mutableListOf(),
         var nameCompanyCreator : String = "",
         val dateStartPrice : Long = 0,
-        val dateFinishPrice : Long? = 0,
+        val dateFinishPrice : Long = -1L,
+        val dateFinishPendency : Long? = null,
         var priority : PriorityPrice = PriorityPrice.AVERAGE,
         var cnpjBuyerCreator : String = "",
         var closeAutomatic : Boolean = true,
         var allowAllProvider : Boolean = false,
         val deliveryDate : Long = 0,
         val description : String = "",
-        var status : StatusPrice = StatusPrice.OPEN
+        var status : StatusPrice = StatusPrice.OPEN,
+        var orderProvider : MutableList<OrderProviderResponse>? = null,
 ) : Parcelable

@@ -8,9 +8,9 @@ import com.example.cotacaofacil.presentation.viewmodel.register.model.UserTypeSe
 interface PriceRepository {
     suspend fun savePrice(priceModel: PriceModel) : Result<String>
     suspend fun editPrice(priceModel: PriceModel) : Result<String>
-    suspend fun getPricesByCnpj(cnpjUser: String, userTypeSelected: UserTypeSelected, userModel : UserModel): Result<MutableList<PriceModel>>
+    suspend fun getPricesByCnpj(cnpjUser: String, userTypeSelected: UserTypeSelected, userModel: UserModel, currentDate: Long): Result<MutableList<PriceModel>>
 
-    suspend fun getPricesProvider(cnpjBuyers: MutableList<String>, cnpjProvider : String, userModel: UserModel) : Result<MutableList<PriceModel>>
-    suspend fun setPricesPartner(cnpjPartner: String, productsEditPrice: PriceEditModel): Result<Any>
-    suspend fun getPriceByCode(priceCode : String, cnpjBuyerCreator : String) : Result <PriceModel>
+    suspend fun getPricesProvider(cnpjBuyers: MutableList<String>, cnpjProvider : String, userModel: UserModel, currentDate: Long) : Result<MutableList<PriceModel>>
+    suspend fun setPricesPartner(cnpjPartner: String, productsEditPrice: PriceEditModel, nameUser : String, currentDate: Long): Result<Any>
+    suspend fun getPriceByCode(priceCode : String, cnpjBuyerCreator : String, currentDate: Long) : Result <PriceModel>
 }

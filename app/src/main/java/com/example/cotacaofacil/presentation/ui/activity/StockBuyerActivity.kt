@@ -70,7 +70,7 @@ class StockBuyerActivity : AppCompatActivity() {
                     }
                     isShowDialog = true
                 }
-                is StockEvent.DeleteProduct -> {
+                is StockEvent.FeedbackMessage -> {
                     Toast.makeText(this, event.message, Toast.LENGTH_SHORT).show()
                 }
 
@@ -173,10 +173,7 @@ class StockBuyerActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        if (user == null) {
-            //criar uma viewmodel e se for nulo buscar o user da mesma forma que o login buscou para passar para cá
-            finish()
-        }
+        if (user == null) {finish()}
         super.onResume()
     }
 

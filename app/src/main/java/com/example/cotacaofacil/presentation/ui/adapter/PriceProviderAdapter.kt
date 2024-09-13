@@ -46,10 +46,12 @@ class PriceProviderAdapter : RecyclerView.Adapter<PriceProviderAdapter.ItemPrice
     inner class ItemPriceProviderViewHolder(val binding: ItemPriceProviderBinding, val cnpjProvider: String?) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(position: Int, priceModel: PriceModel) {
-            binding.tvCodePrice.text = binding.root.context.getString(R.string.code_adapter_price, priceModel.code)
+            val context = binding.root.context
+
+            binding.tvCodePrice.text = context.getString(R.string.code_adapter_price, priceModel.code)
             binding.tvCreationDateLabel.text =
-                binding.root.context.getString(R.string.date_init_price_adapter_price, priceModel.dateStartPrice.toFormattedDateTime())
-            binding.tvStatus.text = priceModel.status.toTextStatus(binding.root.context)
+                context.getString(R.string.date_init_price_adapter_price, priceModel.dateStartPrice.toFormattedDateTime())
+            binding.tvStatus.text = priceModel.status.toTextStatus(context)
             cnpjProvider?.let { cnpj ->
                 val productsModel = priceModel.productsPrice
                 productsModel.forEach { productPriceModel ->
@@ -61,28 +63,41 @@ class PriceProviderAdapter : RecyclerView.Adapter<PriceProviderAdapter.ItemPrice
             }
             when (priceModel.status) {
                 StatusPrice.OPEN -> {
-                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.green_price))
-                    binding.tvClosingDateLabel.text = priceModel.dateFinishPrice?.dateEmpty(binding.root.context, priceModel.closeAutomatic)
-                        ?: binding.root.context.getString(R.string.finish_price_not_auto)
+                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(context, R.color.green_price))
+                    binding.tvClosingDateLabel.text = priceModel.dateFinishPrice.dateEmpty(context, priceModel.closeAutomatic)
+                        ?: context.getString(R.string.finish_price_not_auto)
+                    binding.tvParticipating.text = context.getString(R.string.participating)
+                    binding.tvParticipating.setBackgroundResource(R.drawable.shape_participate)
                 }
                 StatusPrice.CANCELED -> {
-                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.gray_price))
+                    binding.tvParticipating.setBackgroundResource(R.drawable.shape_participate_closed)
+                    binding.tvParticipating.text = context.getString(R.string.participate)
+                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(context, R.color.gray_price))
                     binding.tvClosingDateLabel.visibility = View.GONE
                 }
                 StatusPrice.FINISHED -> {
-                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.red_price))
+                    binding.tvParticipating.setBackgroundResource(R.drawable.shape_participate_closed)
+                    binding.tvParticipating.text = context.getString(R.string.participate)
+                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(context, R.color.red_price))
                     binding.tvClosingDateLabel.text =
-                        binding.root.context.getString(R.string.price_finished_date, priceModel.dateFinishPrice?.formatDateHistoric())
+                        context.getString(R.string.price_finished_date, priceModel.dateFinishPrice.formatDateHistoric())
+                }
+                StatusPrice.PENDENCY -> {
+                    binding.tvParticipating.setBackgroundResource(R.drawable.shape_participate_pendency)
+                    binding.tvParticipating.text = context.getString(R.string.pendency_status_text)
+                    binding.constraintLayoutRoot.setBackgroundColor(ContextCompat.getColor(context, R.color.teal_200))
+                    binding.tvClosingDateLabel.text =
+                        context.getString(R.string.price_finished_date, priceModel.dateFinishPrice.formatDateHistoric())
                 }
             }
 
             binding.tvCompanyName.text = priceModel.nameCompanyCreator
             binding.tvCnpj.text = "(${priceModel.cnpjBuyerCreator})"
-            binding.tvClosingDateLabel.text = priceModel.dateFinishPrice?.dateEmpty(binding.root.context, priceModel.closeAutomatic)
+            binding.tvClosingDateLabel.text = priceModel.dateFinishPrice?.dateEmpty(context, priceModel.closeAutomatic)
             binding.tvCreationDateLabel.text =
-                binding.root.context.getString(R.string.date_init_price_adapter_price, priceModel.dateStartPrice.toFormattedDateTime())
-            binding.tvStatus.text = priceModel.status.toTextStatus(binding.root.context)
-            binding.tvClosureType.text = getTvClosureTypeText(binding.root.context, priceModel.closeAutomatic)
+                context.getString(R.string.date_init_price_adapter_price, priceModel.dateStartPrice.toFormattedDateTime())
+            binding.tvStatus.text = priceModel.status.toTextStatus(context)
+            binding.tvClosureType.text = getTvClosureTypeText(context, priceModel.closeAutomatic)
             binding.tvProductQuantity.text = priceModel.productsPrice.size.toString()
 
             binding.cardViewRoot.setOnClickListener {

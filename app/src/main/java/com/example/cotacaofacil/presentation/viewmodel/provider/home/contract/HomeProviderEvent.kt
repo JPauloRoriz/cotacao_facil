@@ -1,7 +1,5 @@
 package com.example.cotacaofacil.presentation.viewmodel.provider.home.contract
 
-import com.example.cotacaofacil.presentation.viewmodel.buyer.price.contractReportInitPrice.EventReportInitPriceLiveData
-
 sealed class HomeProviderEvent {
     data class ErrorLoadInformation(val message : String = "e") : HomeProviderEvent()
     object ClickPartner : HomeProviderEvent()

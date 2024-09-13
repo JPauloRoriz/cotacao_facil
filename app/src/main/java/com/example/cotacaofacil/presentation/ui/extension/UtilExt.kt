@@ -25,6 +25,7 @@ fun StatusPrice.toTextStatus(context: Context): String {
         StatusPrice.OPEN -> context.getString(R.string.open)
         StatusPrice.CANCELED -> context.getString(R.string.canceled)
         StatusPrice.FINISHED -> context.getString(R.string.finished)
+        StatusPrice.PENDENCY -> context.getString(R.string.pendency)
     }
 }
 

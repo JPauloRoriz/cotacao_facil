@@ -11,7 +11,6 @@ import com.example.cotacaofacil.databinding.ActivityParticipatePriceProviderBind
 import com.example.cotacaofacil.domain.model.PriceEditModel
 import com.example.cotacaofacil.domain.model.ProductPriceEditPriceModel
 import com.example.cotacaofacil.presentation.ui.adapter.ItemTableProductAdapter
-import com.example.cotacaofacil.presentation.util.Maks.addCurrencyMask
 import com.example.cotacaofacil.presentation.viewmodel.provider.price.ParticipatePriceProviderViewModel
 import com.example.cotacaofacil.presentation.viewmodel.provider.price.contract.participatePricesProviderContract.ParticipatePriceEvent
 import org.koin.android.ext.android.inject
@@ -41,7 +40,11 @@ class ParticipatePriceProviderActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        binding.editTextValueProduct.addTextChangedListener { text ->
+        binding.arrow.setOnClickListener {
+            finish()
+        }
+
+        binding.includedProduct.editTextValueProduct.addTextChangedListener { text ->
             viewModel.editProduct(text, allProductsPriceAdapter.listTableProduct, allProductsPriceAdapter.positionSelect)
         }
 
@@ -70,7 +73,8 @@ class ParticipatePriceProviderActivity : AppCompatActivity() {
             setProductSelect(state.productEditSelect)
             binding.imageButtonArrowLeft.isVisible = allProductsPriceAdapter.positionSelect != 0
             binding.imageButtonArrowRight.isVisible = allProductsPriceAdapter.positionSelect != allProductsPriceAdapter.listTableProduct.size.minus(1)
-            binding.editTextValueProduct.setText(state.productEditSelect.price.toString())
+            binding.includedProduct.editTextValueProduct.setText(state.productEditSelect.price.toString())
+            binding.progressBar.isVisible = state.isLoading
         }
 
         viewModel.eventLiveData.observe(this) { event ->
@@ -86,7 +90,7 @@ class ParticipatePriceProviderActivity : AppCompatActivity() {
     }
 
     private fun setProductSelect(productPriceModel: ProductPriceEditPriceModel) {
-        binding.apply {
+        binding.includedProduct.apply {
             textViewCodeProduct.text = getString(R.string.ccd_product, productPriceModel.productModel.code)
             textViewNameProduct.text = productPriceModel.productModel.name
             textViewTextDescription.text = productPriceModel.productModel.description
